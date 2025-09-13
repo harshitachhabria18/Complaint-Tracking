@@ -1,24 +1,25 @@
-from app import db
-from flask_login import UserMixin
 from datetime import datetime
+from flask_login import UserMixin
+from . import db
 
 class User(db.Model, UserMixin):
-    __tablename__ = 'users'  
+    __tablename__ = "users"
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255),nullable=False)
-    role = db.Column(db.String(20), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(20), nullable=False)  # student/teacher/admin
     phone = db.Column(db.String(20), nullable=False)
-    department = db.Column(db.String(50), nullable=False) # B.Tech/BCA/etc
+    department = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # One-to-one relationship to teacher profile (if role = teacher)
-    teacher_profile = db.relationship('Teacher', backref='user', uselist=False)
+    teacher_profile = db.relationship("Teacher", backref="user", uselist=False)
 
 class Teacher(db.Model):
-    __tablename__ = 'teachers'  
-    id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    __tablename__ = "teachers"
+
+    id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
     category = db.Column(db.String(100), nullable=False)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
 

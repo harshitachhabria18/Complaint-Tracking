@@ -1,4 +1,39 @@
+# Virtual environment
 venv/
-instance/
+ENV/
+env/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Flask instance folder
+instance/
+
+# Environment variables
+.env
+*.env
+
+# Pytest cache
+.pytest_cache/
+.cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+
+# Migrations
+migrations/__pycache__/
+migrations/versions/__pycache__/
+
+# Editor folders
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
