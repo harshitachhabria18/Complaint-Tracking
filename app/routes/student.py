@@ -97,28 +97,30 @@ def new_complaint():
 
 
 @bp.route('/')
+@login_required
 def home():
+    if current_user.is_authenticated:
     # Complaint stats
-    total_pending = Complaint.query.filter_by(student_id=current_user.id, status="Pending").count()
-    total_inprogress = Complaint.query.filter_by(student_id=current_user.id, status="InProgress").count()
-    total_resolved = Complaint.query.filter_by(student_id=current_user.id, status="Resolved").count()
-    total_urgent = Complaint.query.filter_by(student_id=current_user.id, severity="Urgent").count()
+        total_pending = Complaint.query.filter_by(student_id=current_user.id, status="Pending").count()
+        total_inprogress = Complaint.query.filter_by(student_id=current_user.id, status="InProgress").count()
+        total_resolved = Complaint.query.filter_by(student_id=current_user.id, status="Resolved").count()
+        total_urgent = Complaint.query.filter_by(student_id=current_user.id, severity="Urgent").count()
 
-    # Latest complaints (limit 5)
-    complaints = Complaint.query.filter_by(student_id=current_user.id).order_by(Complaint.created_at.desc()).limit(5).all()
+        # Latest complaints (limit 5)
+        complaints = Complaint.query.filter_by(student_id=current_user.id).order_by(Complaint.created_at.desc()).limit(5).all()
 
-    # Notifications (limit 5)
-    notifications = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.created_at.desc()).limit(5).all()
+        # Notifications (limit 5)
+        notifications = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.created_at.desc()).limit(5).all()
 
-    return render_template(
-        'student/dashboard.html',
-        pending=total_pending,
-        inprogress=total_inprogress,
-        resolved=total_resolved,
-        urgent=total_urgent,
-        complaints=complaints,
-        notifications=notifications
-    )
+        return render_template(
+            'student/dashboard.html',
+            pending=total_pending,
+            inprogress=total_inprogress,
+            resolved=total_resolved,
+            urgent=total_urgent,
+            complaints=complaints,
+            notifications=notifications
+        )
 
 @bp.route('/complaint-history')
 def complaint_history():
