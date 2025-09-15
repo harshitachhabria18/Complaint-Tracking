@@ -21,41 +21,65 @@ class Teacher(db.Model):
 
     id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
     category = db.Column(db.String(100), nullable=False)
-    is_active = db.Column(db.Boolean, default=True, nullable=False)
+    is_active = db.Column(db.Boolean, default=True, nullable=False) 
 
-# class Complaint(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     student_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-#     category = db.Column(db.String(100))
-#     title = db.Column(db.String(200))
-#     description = db.Column(db.Text)
-#     evidence_path = db.Column(db.String(255))
-#     anonymous = db.Column(db.Boolean, default=False)
-#     status = db.Column(db.Enum('Pending','In Progress','Resolved','Escalated', name='status_enum'), default='Pending')
-#     severity = db.Column(db.Enum('Normal','Urgent','Critical', name='severity_enum'), default='Normal')
-#     assigned_teacher_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-#     deadline = db.Column(db.DateTime)
-#     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-#     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-# class ComplaintHistory(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     complaint_id = db.Column(db.Integer, db.ForeignKey('complaint.id'))
-#     status = db.Column(
-#     db.Enum('Pending', 'In Progress', 'Resolved', 'Escalated', name='history_status_enum'))
-#     remarks = db.Column(db.Text)
-#     evidence_path = db.Column(db.String(255))
+class Complaint(db.Model):
+    __tablename__ = "complaints"
 
-# class Feedback(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     complaint_id = db.Column(db.Integer, db.ForeignKey('complaint.id'))
-#     student_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-#     rating = db.Column(db.Integer)
-#     comments = db.Column(db.Text)
-#     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    category = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    evidence_path = db.Column(db.String(255))
+    anonymous = db.Column(db.Boolean, default=False)
+    severity = db.Column(db.String(20), default="Normal")  # Normal/Urgent
+    updates_email = db.Column(db.Boolean, default=False) 
+    status = db.Column(db.String(20), default="Pending")   # Pending/InProgress/Resolved/Escalated
+    assigned_teacher_id = db.Column(db.Integer, db.ForeignKey("teachers.id"), nullable=True)
+    deadline = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-# class Notification(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-#     message = db.Column(db.Text)
-#     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    student = db.relationship("User", backref="complaints", foreign_keys=[student_id])
+    assigned_teacher = db.relationship("Teacher", backref="assigned_complaints")
+
+class ComplaintHistory(db.Model):
+    __tablename__ = "complaint_history"
+
+    id = db.Column(db.Integer, primary_key=True)
+    complaint_id = db.Column(db.Integer, db.ForeignKey("complaints.id"), nullable=False)
+    status = db.Column(db.String(20), nullable=False)
+    remarks = db.Column(db.Text)
+    evidence_path = db.Column(db.String(255))
+    changed_by = db.Column(db.Integer, db.ForeignKey("users.id"))
+    changed_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    complaint = db.relationship("Complaint", backref="history")
+    changed_user = db.relationship("User")
+
+class Notification(db.Model):
+    __tablename__ = "notifications"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    message = db.Column(db.String(255), nullable=False)
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship("User", backref="notifications")
+
+class Feedback(db.Model):
+    __tablename__ = "feedback"
+
+    id = db.Column(db.Integer, primary_key=True)
+    complaint_id = db.Column(db.Integer, db.ForeignKey("complaints.id"), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    comments = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    complaint = db.relationship("Complaint", backref="feedback")
+    student = db.relationship("User")
+

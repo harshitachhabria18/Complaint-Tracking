@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint Management - Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+
+<body>
+    <!-- Dashboard Layout -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('admin.dashboard') }}" class="active"><i class="fas fa-home me-2"></i> Dashboard</a>
+            <a href="{{ url_for('admin.complaints') }}"><i class="fas fa-list-alt me-2"></i> Complaints</a>
+            <a href="{{ url_for('admin.analytics') }}"><i class="fas fa-chart-bar me-2"></i> Analytics</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content-dashboard">
+            <div class="content-container">
+                <div class="main-content-inner">
+                    <!-- Page Header -->
+                    <div class="page-header">
+                        <div>
+                            <h1>Complaint Management</h1>
+                            <p>View and manage all submitted complaints</p>
+                        </div>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-download"></i> Export Reports
+                        </button>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="filters-container">
+                        <div class="filter-row">
+                            <div class="form-group">
+                                <label class="form-label">Status</label>
+                                <select class="form-control" id="statusFilter">
+                                    <option value="all">All Statuses</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="inprogress">In Progress</option>
+                                    <option value="resolved">Resolved</option>
+                                    <option value="overdue">Overdue</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Category</label>
+                                <select class="form-control" id="categoryFilter">
+                                    <option value="all">All Categories</option>
+                                    <option value="academic">Academic</option>
+                                    <option value="hostel">Hostel</option>
+                                    <option value="infrastructure">Infrastructure</option>
+                                    <option value="administrative">Administrative</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Assigned To</label>
+                                <select class="form-control" id="assigneeFilter">
+                                    <option value="all">All Teachers</option>
+                                    <option value="smith">Dr. Smith</option>
+                                    <option value="jones">Prof. Jones</option>
+                                    <option value="williams">Dr. Williams</option>
+                                    <option value="davis">Ms. Davis</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="filter-row">
+                            <div class="form-group">
+                                <label class="form-label">Date From</label>
+                                <input type="date" class="form-control" id="dateFrom">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Date To</label>
+                                <input type="date" class="form-control" id="dateTo">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Priority</label>
+                                <select class="form-control" id="priorityFilter">
+                                    <option value="all">All Priorities</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="filter-actions">
+                            <button class="btn btn-outline">
+                                <i class="fas fa-times"></i> Clear Filters
+                            </button>
+                            <button class="btn btn-primary">
+                                <i class="fas fa-filter"></i> Apply Filters
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- View Toggle -->
+                    <div class="view-toggle">
+                        <button class="toggle-btn active" id="cardViewBtn">
+                            <i class="fas fa-th-large"></i> Card View
+                        </button>
+                        <button class="toggle-btn" id="tableViewBtn">
+                            <i class="fas fa-table"></i> Table View
+                        </button>
+                    </div>
+
+                    <!-- Card View -->
+                    <div class="card-view">
+                        <!-- Complaint Card 1 -->
+                        <div class="complaint-card urgent">
+                            <div class="complaint-header">
+                                <div>
+                                    <div class="complaint-id">#COMP128</div>
+                                    <div class="complaint-date">Submitted: Oct 15, 2023</div>
+                                </div>
+                                <span class="status-badge status-pending">Pending - Overdue</span>
+                            </div>
+                            <div class="complaint-content">
+                                <div class="complaint-title">Assignment grading issue in Mathematics</div>
+                                <div class="complaint-desc">
+                                    My assignment was graded unfairly. I believe I deserve higher marks based on the
+                                    rubric provided. The comments don't match the score given.
+                                </div>
+                                <div class="complaint-meta">
+                                    <div class="meta-item">
+                                        <i class="fas fa-user"></i>
+                                        <span>John Doe</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-tag"></i>
+                                        <span>Academic</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-user-tie"></i>
+                                        <span>Assigned to: Dr. Smith</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span>18 days overdue</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="complaint-footer">
+                                <div class="progress-container">
+                                </div>
+                                <div class="complaint-actions">
+                                    <button class="btn btn-view" onclick="escalateComplaint(128)">
+                                        <i class="fas fa-exclamation-triangle"></i> Escalate
+                                    </button>
+                                    <button class="btn btn-view" onclick="viewComplaint(128)">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Complaint Card 2 -->
+                        <div class="complaint-card">
+                            <div class="complaint-header">
+                                <div>
+                                    <div class="complaint-id">#COMP112</div>
+                                    <div class="complaint-date">Submitted: Oct 10, 2023</div>
+                                </div>
+                                <span class="status-badge status-inprogress">In Progress</span>
+                            </div>
+                            <div class="complaint-content">
+                                <div class="complaint-title">Water leakage in room 205</div>
+                                <div class="complaint-desc">
+                                    There's a persistent water leakage from the ceiling in my room. It's causing damage
+                                    to my books and electronics. This needs immediate attention.
+                                </div>
+                                <div class="complaint-meta">
+                                    <div class="meta-item">
+                                        <i class="fas fa-user"></i>
+                                        <span>Emma Wilson</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-tag"></i>
+                                        <span>Hostel</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-user-tie"></i>
+                                        <span>Assigned to: Prof. Jones</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span>Updated: 2 days ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="complaint-footer">
+                                <div class="progress-container">
+                                </div>
+                                <div class="complaint-actions">
+                                    <button class="btn btn-view" onclick="escalateComplaint(128)">
+                                        <i class="fas fa-exclamation-triangle"></i> Escalate
+                                    </button>
+                                    <button class="btn btn-view" onclick="viewComplaint(128)">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Complaint Card 3 -->
+                        <div class="complaint-card resolved">
+                            <div class="complaint-header">
+                                <div>
+                                    <div class="complaint-id">#COMP087</div>
+                                    <div class="complaint-date">Submitted: Oct 2, 2023</div>
+                                </div>
+                                <span class="status-badge status-resolved">Resolved</span>
+                            </div>
+                            <div class="complaint-content">
+                                <div class="complaint-title">Document verification for scholarship</div>
+                                <div class="complaint-desc">
+                                    I need to get my documents verified for the scholarship application. The deadline is
+                                    approaching and I need this completed ASAP.
+                                </div>
+                                <div class="complaint-meta">
+                                    <div class="meta-item">
+                                        <i class="fas fa-user"></i>
+                                        <span>Sarah Johnson</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-tag"></i>
+                                        <span>Administrative</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-user-tie"></i>
+                                        <span>Assigned to: Dr. Williams</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span>Resolved: Oct 5, 2023</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="complaint-footer">
+                                <div class="progress-container">
+                                </div>
+                                <div class="complaint-actions">
+                                    <button class="btn btn-view" onclick="escalateComplaint(128)">
+                                        <i class="fas fa-exclamation-triangle"></i> Escalate
+                                    </button>
+                                    <button class="btn btn-view" onclick="viewComplaint(128)">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Complaint Card 4 -->
+                        <div class="complaint-card">
+                            <div class="complaint-header">
+                                <div>
+                                    <div class="complaint-id">#COMP095</div>
+                                    <div class="complaint-date">Submitted: Oct 5, 2023</div>
+                                </div>
+                                <span class="status-badge status-inprogress">In Progress</span>
+                            </div>
+                            <div class="complaint-content">
+                                <div class="complaint-title">Broken chair in library study area</div>
+                                <div class="complaint-desc">
+                                    One of the chairs in the library's study area is broken and poses a safety hazard.
+                                    It needs to be repaired or replaced.
+                                </div>
+                                <div class="complaint-meta">
+                                    <div class="meta-item">
+                                        <i class="fas fa-user"></i>
+                                        <span>Michael Brown</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-tag"></i>
+                                        <span>Infrastructure</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-user-tie"></i>
+                                        <span>Assigned to: Ms. Davis</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span>Updated: Today</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="complaint-footer">
+                                <div class="progress-container">
+                                </div>
+                                <div class="complaint-actions">
+                                    <button class="btn btn-view" onclick="escalateComplaint(128)">
+                                        <i class="fas fa-exclamation-triangle"></i> Escalate
+                                    </button>
+                                    <button class="btn btn-view" onclick="viewComplaint(128)">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table View -->
+                    <div class="table-view" id="tableView">
+                        <div class="card">
+                            <div class="card-body">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Category</th>
+                                            <th>Subject</th>
+                                            <th>Submitted By</th>
+                                            <th>Date</th>
+                                            <th>Assigned To</th>
+                                            <th>Status</th>
+                                            <th>Days Open</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="overdue">
+                                            <td>#COMP128</td>
+                                            <td>Academic</td>
+                                            <td>Assignment grading issue</td>
+                                            <td>John Doe</td>
+                                            <td>Oct 15, 2023</td>
+                                            <td>Dr. Smith</td>
+                                            <td><span class="status-badge status-pending">Pending</span></td>
+                                            <td>18</td>
+                                            <td>
+                                                <button class="btn btn-view" onclick="escalateComplaint(128)">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                </button>
+                                                <button class="btn btn-view" onclick="viewComplaint(128)">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>#COMP112</td>
+                                            <td>Hostel</td>
+                                            <td>Water leakage in room 205</td>
+                                            <td>Emma Wilson</td>
+                                            <td>Oct 10, 2023</td>
+                                            <td>Prof. Jones</td>
+                                            <td><span class="status-badge status-inprogress">In Progress</span></td>
+                                            <td>13</td>
+                                            <td>
+                                                <button class="btn btn-outline">
+                                                    <i class="fas fa-comment"></i>
+                                                </button>
+                                                <button class="btn btn-outline" onclick="viewComplaint(112)">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>#COMP095</td>
+                                            <td>Infrastructure</td>
+                                            <td>Broken chair in library</td>
+                                            <td>Michael Brown</td>
+                                            <td>Oct 5, 2023</td>
+                                            <td>Ms. Davis</td>
+                                            <td><span class="status-badge status-inprogress">In Progress</span></td>
+                                            <td>8</td>
+                                            <td>
+                                                <button class="btn btn-view" onclick="escalateComplaint(128)">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                </button>
+                                                <button class="btn btn-view" onclick="viewComplaint(128)">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>#COMP087</td>
+                                            <td>Administrative</td>
+                                            <td>Document verification</td>
+                                            <td>Sarah Johnson</td>
+                                            <td>Oct 2, 2023</td>
+                                            <td>Dr. Williams</td>
+                                            <td><span class="status-badge status-resolved">Resolved</span></td>
+                                            <td>3</td>
+                                            <td>
+                                                <button class="btn btn-view" onclick="escalateComplaint(128)">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                </button>
+                                                <button class="btn btn-view" onclick="viewComplaint(128)">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>#COMP073</td>
+                                            <td>Academic</td>
+                                            <td>Course material access</td>
+                                            <td>David Lee</td>
+                                            <td>Sep 28, 2023</td>
+                                            <td>Dr. Smith</td>
+                                            <td><span class="status-badge status-resolved">Resolved</span></td>
+                                            <td>2</td>
+                                            <td>
+                                                <button class="btn btn-view" onclick="escalateComplaint(128)">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                </button>
+                                                <button class="btn btn-view" onclick="viewComplaint(128)">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+                        <div>Showing 1-5 of 142 complaints</div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-view">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <button class="btn btn-view">1</button>
+                            <button class="btn btn-view">2</button>
+                            <button class="btn btn-view">3</button>
+                            <button class="btn btn-view">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaint Detail Modal -->
+    <div class="modal-backdrop" id="complaintModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Complaint Details - #COMP128</h3>
+                <span class="close" onclick="hideModal('complaintModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="complaint-details">
+                    <div class="detail-group">
+                        <h4><i class="fas fa-info-circle"></i> Basic Information</h4>
+                        <div class="detail-content">
+                            <p><strong>Subject:</strong> Assignment grading issue in Mathematics</p>
+                            <p><strong>Category:</strong> Academic</p>
+                            <p><strong>Priority:</strong> <span class="status-badge badge-urgent">Urgent</span></p>
+                            <p><strong>Status:</strong> <span class="status-badge status-pending">Pending -
+                                    Overdue</span></p>
+                            <p><strong>Date Submitted:</strong> Oct 15, 2023</p>
+                            <p><strong>Days Open:</strong> 18 days</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <h4><i class="fas fa-user"></i> Submitted By</h4>
+                        <div class="detail-content">
+                            <p><strong>Name:</strong> John Doe</p>
+                            <p><strong>Student ID:</strong> S12345</p>
+                            <p><strong>Email:</strong> john.doe@example.com</p>
+                            <p><strong>Department:</strong> Computer Science</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <h4><i class="fas fa-user-tie"></i> Assigned To</h4>
+                        <div class="detail-content">
+                            <p><strong>Teacher:</strong> Dr. Smith</p>
+                            <p><strong>Department:</strong> Mathematics</p>
+                            <p><strong>Email:</strong> dr.smith@example.com</p>
+                            <p><strong>Assigned On:</strong> Oct 16, 2023</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <h4><i class="fas fa-file-alt"></i> Complaint Description</h4>
+                        <div class="detail-content">
+                            <p>My assignment was graded unfairly. I believe I deserve higher marks based on the rubric
+                                provided. The comments don't match the score given.</p>
+                            <p>I've attached the assignment PDF with my solutions and the feedback provided by the TA.
+                                The question in contention is Question 3b where I was given 2/10 points despite
+                                following the correct approach.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline">
+                        <h4><i class="fas fa-history"></i> Activity Timeline</h4>
+
+                        <div class="timeline-item">
+                            <div class="timeline-icon">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">Oct 15, 2023 - 10:30 AM</div>
+                                <p><strong>Complaint submitted</strong> by John Doe</p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-icon">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">Oct 16, 2023 - 09:15 AM</div>
+                                <p><strong>Complaint assigned</strong> to Dr. Smith</p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">Oct 18, 2023 - 02:45 PM</div>
+                                <p><strong>Initial response</strong> sent to student</p>
+                                <p>"Thank you for bringing this to our attention. I will review your assignment and get
+                                    back to you within 5 working days."</p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">Oct 30, 2023 - 11:20 AM</div>
+                                <p><strong>Complaint marked as overdue</strong></p>
+                                <p>Resolution timeframe exceeded by 8 days</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="hideModal('complaintModal')">Close</button>
+                <button class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Update Status
+                </button>
+                <button class="btn btn-primary" onclick="escalateComplaint(128)">
+                    <i class="fas fa-exclamation-triangle"></i> Escalate
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle between card and table view
+        document.getElementById('cardViewBtn').addEventListener('click', function () {
+            document.querySelector('.card-view').style.display = 'block';
+            document.getElementById('tableView').style.display = 'none';
+            this.classList.add('active');
+            document.getElementById('tableViewBtn').classList.remove('active');
+        });
+
+        document.getElementById('tableViewBtn').addEventListener('click', function () {
+            document.querySelector('.card-view').style.display = 'none';
+            document.getElementById('tableView').style.display = 'block';
+            this.classList.add('active');
+            document.getElementById('cardViewBtn').classList.remove('active');
+        });
+
+        // Modal functionality
+        function viewComplaint(id) {
+            document.getElementById('complaintModal').style.display = 'flex';
+            // In a real application, we would load the specific complaint data here
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target.classList.contains('modal-backdrop')) {
+                event.target.style.display = 'none';
+            }
+        });
+
+        // Complaint escalation
+        function escalateComplaint(complaintId) {
+            if (confirm(`Escalate complaint #COMP${complaintId} to higher authorities?`)) {
+                alert(`Complaint #COMP${complaintId} has been escalated to higher authorities.`);
+                // In a real application, you would send this to the server
+            }
+        }
+
+        // Initialize filters with today's date
+        document.addEventListener('DOMContentLoaded', function () {
+            const today = new Date();
+            const lastWeek = new Date();
+            lastWeek.setDate(today.getDate() - 7);
+
+            document.getElementById('dateTo').valueAsDate = today;
+            document.getElementById('dateFrom').valueAsDate = lastWeek;
+        });
+    </script>
+</body>
+
+</html>

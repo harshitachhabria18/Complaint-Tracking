@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrator Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+
+<body>
+    <!-- Dashboard Layout -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('admin.dashboard') }}" class="active"><i class="fas fa-home me-2"></i> Dashboard</a>
+            <a href="{{ url_for('admin.complaints') }}"><i class="fas fa-list-alt me-2"></i> Complaints</a>
+            <a href="{{ url_for('admin.analytics') }}"><i class="fas fa-chart-bar me-2"></i> Analytics</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content-dashboard">
+            <div class="content-container">
+                <div class="main-content-inner">
+                    <!-- Dashboard Header -->
+                    <div class="dashboard-header">
+                        <div class="welcome-message">
+                            <h1>Administrator Dashboard</h1>
+                            <p>Manage complaints, track progress, and analyze performance</p>
+                        </div>
+                        <div class="quick-actions">
+                            <button class="btn btn-primary" onclick="showModal('uploadModal')">
+                                <i class="fas fa-file-import"></i> Import Data
+                            </button>
+                            <button class="btn btn-outline">
+                                <i class="fas fa-download"></i> Export Report
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Stats Overview -->
+                    <div class="stats-grid">
+                        <div class="stat-square">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="stat-number">142</div>
+                            <div class="stat-label">Total Complaints</div>
+                        </div>
+                        <div class="stat-square pending">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-number">38</div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                        <div class="stat-square progress">
+                            <div class="stat-icon">
+                                <i class="fas fa-spinner"></i>
+                            </div>
+                            <div class="stat-number">64</div>
+                            <div class="stat-label">In Progress</div>
+                        </div>
+                        <div class="stat-square resolved">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-number">40</div>
+                            <div class="stat-label">Resolved</div>
+                        </div>
+                        <div class="stat-square urgent">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-number">12</div>
+                            <div class="stat-label">Overdue</div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="tabs">
+                        <div class="tab active" data-tab="complaints">Complaints</div>
+                        <div class="tab" data-tab="analytics">Analytics</div>
+                        <div class="tab" data-tab="teachers">Teacher Performance</div>
+                    </div>
+
+                    <!-- Complaints Tab -->
+                    <div class="tab-content active" id="complaintsTab">
+                        <!-- Filters -->
+                        <div class="complaint-filters">
+                            <div class="filter-group">
+                                <label for="statusFilter">Status</label>
+                                <select class="form-control" id="statusFilter">
+                                    <option value="all">All Statuses</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="progress">In Progress</option>
+                                    <option value="resolved">Resolved</option>
+                                    <option value="overdue">Overdue</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="categoryFilter">Category</label>
+                                <select class="form-control" id="categoryFilter">
+                                    <option value="all">All Categories</option>
+                                    <option value="academic">Academic</option>
+                                    <option value="hostel">Hostel</option>
+                                    <option value="infrastructure">Infrastructure</option>
+                                    <option value="administrative">Administrative</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="teacherFilter">Assigned Teacher</label>
+                                <select class="form-control" id="teacherFilter">
+                                    <option value="all">All Teachers</option>
+                                    <option value="dr_smith">Dr. Smith</option>
+                                    <option value="prof_jones">Prof. Jones</option>
+                                    <option value="dr_williams">Dr. Williams</option>
+                                    <option value="ms_davis">Ms. Davis</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="dateFilter">Time Period</label>
+                                <select class="form-control" id="dateFilter">
+                                    <option value="all">All Time</option>
+                                    <option value="week">Last Week</option>
+                                    <option value="month">Last Month</option>
+                                    <option value="quarter">Last Quarter</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Complaints Table -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>All Complaints</h3>
+                            </div>
+                            <div class="card-body">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Category</th>
+                                            <th>Subject</th>
+                                            <th>Submitted By</th>
+                                            <th>Date</th>
+                                            <th>Assigned To</th>
+                                            <th>Status</th>
+                                            <th>Days Open</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="overdue">
+                                            <td>#COMP128</td>
+                                            <td>Academic</td>
+                                            <td>Assignment grading issue</td>
+                                            <td>John Doe</td>
+                                            <td>Oct 15, 2023</td>
+                                            <td>Dr. Smith</td>
+                                            <td><span class="status-badge status-pending">Pending</span></td>
+                                            <td>18</td>
+                                            <td>
+                                                <button class="btn btn-view" onclick="escalateComplaint(128)">
+                                                    <i class="fas fa-exclamation-triangle"></i> Escalate
+                                                </button>
+                                                <button class="btn btn-view" onclick="viewComplaint(112)">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr class="escalated">
+                                            <td>#COMP112</td>
+                                            <td>Hostel</td>
+                                            <td>Water leakage in room 205</td>
+                                            <td>Emma Wilson</td>
+                                            <td>Oct 10, 2023</td>
+                                            <td>Prof. Jones</td>
+                                            <td><span class="status-badge status-inprogress">In Progress</span></td>
+                                            <td>23</td>
+                                            <td>
+                                                <button class="btn btn-view" onclick="escalateComplaint(128)">
+                                                    <i class="fas fa-exclamation-triangle"></i> Escalate
+                                                </button>
+                                                <button class="btn btn-view" onclick="viewComplaint(112)">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>#COMP095</td>
+                                            <td>Infrastructure</td>
+                                            <td>Broken chair in library</td>
+                                            <td>Michael Brown</td>
+                                            <td>Oct 5, 2023</td>
+                                            <td>Ms. Davis</td>
+                                            <td><span class="status-badge status-inprogress">In Progress</span></td>
+                                            <td>5</td>
+                                            <td>
+                                                <button class="btn btn-view" onclick="escalateComplaint(128)">
+                                                    <i class="fas fa-exclamation-triangle"></i> Escalate
+                                                </button>
+                                                <button class="btn btn-view" onclick="viewComplaint(112)">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>#COMP087</td>
+                                            <td>Administrative</td>
+                                            <td>Document verification</td>
+                                            <td>Sarah Johnson</td>
+                                            <td>Oct 2, 2023</td>
+                                            <td>Dr. Williams</td>
+                                            <td><span class="status-badge status-resolved">Resolved</span></td>
+                                            <td>3</td>
+                                            <td>
+                                                <button class="btn btn-view" onclick="escalateComplaint(128)">
+                                                    <i class="fas fa-exclamation-triangle"></i> Escalate
+                                                </button>
+                                                <button class="btn btn-view" onclick="viewComplaint(112)">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>#COMP073</td>
+                                            <td>Academic</td>
+                                            <td>Course material access</td>
+                                            <td>David Lee</td>
+                                            <td>Sep 28, 2023</td>
+                                            <td>Dr. Smith</td>
+                                            <td><span class="status-badge status-resolved">Resolved</span></td>
+                                            <td>2</td>
+                                            <td>
+                                                <button class="btn btn-view" onclick="escalateComplaint(128)">
+                                                    <i class="fas fa-exclamation-triangle"></i> Escalate
+                                                </button>
+                                                <button class="btn btn-view" onclick="viewComplaint(112)">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analytics Tab -->
+                    <div class="tab-content" id="analyticsTab">
+                        <div class="analytics-container">
+                            <div class="analytics-card">
+                                <h3>Complaints by Category</h3>
+                                <div class="chart-container" id="categoryChart">
+                                    <!-- Chart will be rendered here -->
+                                    <div
+                                        style="display: flex; height: 100%; align-items: flex-end; gap: 15px; justify-content: center; padding-top: 40px;">
+                                        <div style="display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 40px; background: #465C88; height: 120px;"></div>
+                                            <div style="margin-top: 10px;">Academic</div>
+                                            <div style="font-weight: bold;">42%</div>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 40px; background: #FF7A30; height: 85px;"></div>
+                                            <div style="margin-top: 10px;">Hostel</div>
+                                            <div style="font-weight: bold;">30%</div>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 40px; background: #38A169; height: 65px;"></div>
+                                            <div style="margin-top: 10px;">Infrastructure</div>
+                                            <div style="font-weight: bold;">20%</div>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 40px; background: #E53E3E; height: 40px;"></div>
+                                            <div style="margin-top: 10px;">Admin</div>
+                                            <div style="font-weight: bold;">8%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="analytics-card">
+                                <h3>Resolution Time by Category (Days)</h3>
+                                <div class="chart-container" id="resolutionChart">
+                                    <!-- Chart will be rendered here -->
+                                    <div
+                                        style="display: flex; height: 100%; align-items: flex-end; gap: 15px; justify-content: center; padding-top: 40px;">
+                                        <div style="display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 40px; background: #465C88; height: 70px;"></div>
+                                            <div style="margin-top: 10px;">Academic</div>
+                                            <div style="font-weight: bold;">7</div>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 40px; background: #FF7A30; height: 40px;"></div>
+                                            <div style="margin-top: 10px;">Hostel</div>
+                                            <div style="font-weight: bold;">4</div>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 40px; background: #38A169; height: 90px;"></div>
+                                            <div style="margin-top: 10px;">Infrastructure</div>
+                                            <div style="font-weight: bold;">9</div>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 40px; background: #E53E3E; height: 60px;"></div>
+                                            <div style="margin-top: 10px;">Admin</div>
+                                            <div style="font-weight: bold;">6</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="analytics-card">
+                                <h3>Monthly Complaints Trend</h3>
+                                <div class="chart-container" id="trendChart">
+                                    <!-- Chart will be rendered here -->
+                                    <div
+                                        style="display: flex; height: 100%; align-items: flex-end; gap: 8px; justify-content: center; padding-top: 40px;">
+                                        <div style="display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 20px; background: #465C88; height: 50px;"></div>
+                                            <div style="margin-top: 10px; font-size: 12px;">Jul</div>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 20px; background: #465C88; height: 70px;"></div>
+                                            <div style="margin-top: 10px; font-size: 12px;">Aug</div>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 20px; background: #465C88; height: 90px;"></div>
+                                            <div style="margin-top: 10px; font-size: 12px;">Sep</div>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 20px; background: #465C88; height: 120px;"></div>
+                                            <div style="margin-top: 10px; font-size: 12px;">Oct</div>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 20px; background: #465C88; height: 100px;"></div>
+                                            <div style="margin-top: 10px; font-size: 12px;">Nov</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Teacher Performance Tab -->
+                    <div class="tab-content" id="teachersTab">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Teacher Performance Metrics</h3>
+                                <select class="form-control" style="width: auto;">
+                                    <option>Last 30 Days</option>
+                                    <option>Last Quarter</option>
+                                    <option>Last Year</option>
+                                </select>
+                            </div>
+                            <div class="card-body">
+                                <div class="teacher-performance">
+                                    <div class="teacher-card">
+                                        <div class="teacher-header">
+                                            <span class="teacher-name">Dr. Smith</span>
+                                            <span class="status-badge badge-resolved">4.2/5</span>
+                                        </div>
+                                        <div>Assigned: 18 complaints</div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 75%"></div>
+                                        </div>
+                                        <div class="teacher-stats">
+                                            <div class="stat-item">
+                                                <div class="stat-value">14</div>
+                                                <div class="stat-label">Resolved</div>
+                                            </div>
+                                            <div class="stat-item">
+                                                <div class="stat-value">4.2</div>
+                                                <div class="stat-label">Avg. Days</div>
+                                            </div>
+                                            <div class="stat-item">
+                                                <div class="stat-value">3</div>
+                                                <div class="stat-label">Overdue</div>
+                                            </div>
+                                            <div class="stat-item">
+                                                <div class="stat-value">4.5</div>
+                                                <div class="stat-label">Rating</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="teacher-card">
+                                        <div class="teacher-header">
+                                            <span class="teacher-name">Prof. Jones</span>
+                                            <span class="status-badge badge-progress">3.8/5</span>
+                                        </div>
+                                        <div>Assigned: 22 complaints</div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 60%"></div>
+                                        </div>
+                                        <div class="teacher-stats">
+                                            <div class="stat-item">
+                                                <div class="stat-value">13</div>
+                                                <div class="stat-label">Resolved</div>
+                                            </div>
+                                            <div class="stat-item">
+                                                <div class="stat-value">5.7</div>
+                                                <div class="stat-label">Avg. Days</div>
+                                            </div>
+                                            <div class="stat-item">
+                                                <div class="stat-value">5</div>
+                                                <div class="stat-label">Overdue</div>
+                                            </div>
+                                            <div class="stat-item">
+                                                <div class="stat-value">4.0</div>
+                                                <div class="stat-label">Rating</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="teacher-card">
+                                        <div class="teacher-header">
+                                            <span class="teacher-name">Dr. Williams</span>
+                                            <span class="status-badge badge-resolved">4.5/5</span>
+                                        </div>
+                                        <div>Assigned: 15 complaints</div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 85%"></div>
+                                        </div>
+                                        <div class="teacher-stats">
+                                            <div class="stat-item">
+                                                <div class="stat-value">13</div>
+                                                <div class="stat-label">Resolved</div>
+                                            </div>
+                                            <div class="stat-item">
+                                                <div class="stat-value">3.5</div>
+                                                <div class="stat-label">Avg. Days</div>
+                                            </div>
+                                            <div class="stat-item">
+                                                <div class="stat-value">1</div>
+                                                <div class="stat-label">Overdue</div>
+                                            </div>
+                                            <div class="stat-item">
+                                                <div class="stat-value">4.7</div>
+                                                <div class="stat-label">Rating</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="teacher-card">
+                                        <div class="teacher-header">
+                                            <span class="teacher-name">Ms. Davis</span>
+                                            <span class="status-badge badge-resolved">4.7/5</span>
+                                        </div>
+                                        <div>Assigned: 12 complaints</div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 90%"></div>
+                                        </div>
+                                        <div class="teacher-stats">
+                                            <div class="stat-item">
+                                                <div class="stat-value">11</div>
+                                                <div class="stat-label">Resolved</div>
+                                            </div>
+                                            <div class="stat-item">
+                                                <div class="stat-value">2.8</div>
+                                                <div class="stat-label">Avg. Days</div>
+                                            </div>
+                                            <div class="stat-item">
+                                                <div class="stat-value">0</div>
+                                                <div class="stat-label">Overdue</div>
+                                            </div>
+                                            <div class="stat-item">
+                                                <div class="stat-value">4.8</div>
+                                                <div class="stat-label">Rating</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div class="modal-backdrop" id="uploadModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Import Teacher Data</h3>
+                <span class="close" onclick="hideModal('uploadModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="upload-text">
+                        <p>Click to upload or drag and drop</p>
+                        <p>CSV or PDF files only</p>
+                    </div>
+                    <input type="file" id="fileInput" accept=".csv,.pdf" style="display: none;"
+                        onchange="handleFileUpload(this.files)">
+                </div>
+
+                <div class="file-list">
+                    <h4>Recently Uploaded Files</h4>
+                    <div class="file-item">
+                        <div class="file-info">
+                            <i class="fas fa-file-csv file-icon"></i>
+                            <div>
+                                <div>teacher_data.csv</div>
+                                <div class="notification-time">Uploaded on Oct 25, 2023</div>
+                            </div>
+                        </div>
+                        <div class="file-actions">
+                            <button class="btn btn-outline">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="btn btn-outline">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="file-item">
+                        <div class="file-info">
+                            <i class="fas fa-file-pdf file-icon"></i>
+                            <div>
+                                <div>teacher_assignments.pdf</div>
+                                <div class="notification-time">Uploaded on Oct 20, 2023</div>
+                            </div>
+                        </div>
+                        <div class="file-actions">
+                            <button class="btn btn-outline">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="btn btn-outline">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="hideModal('uploadModal')">Cancel</button>
+                <button class="btn btn-primary">Process Files</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                tab.classList.add('active');
+
+                // Hide all tab content
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                // Show the corresponding tab content
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(`${tabId}Tab`).classList.add('active');
+            });
+        });
+
+        // Modal functionality
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target.classList.contains('modal-backdrop')) {
+                event.target.style.display = 'none';
+            }
+        });
+
+        // File upload handling
+        function handleFileUpload(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                const fileName = file.name;
+                const fileExtension = fileName.split('.').pop().toLowerCase();
+
+                if (fileExtension === 'csv' || fileExtension === 'pdf') {
+                    alert(`File "${fileName}" uploaded successfully!`);
+                    // In a real application, you would process the file here
+                } else {
+                    alert('Please upload only CSV or PDF files.');
+                }
+            }
+        }
+
+        // Complaint escalation
+        function escalateComplaint(complaintId) {
+            if (confirm(`Escalate complaint #COMP${complaintId} to higher authorities?`)) {
+                alert(`Complaint #COMP${complaintId} has been escalated to higher authorities.`);
+                // In a real application, you would send this to the server
+            }
+        }
+
+        // View complaint details
+        function viewComplaint(complaintId) {
+            alert(`Viewing details for complaint #COMP${complaintId}`);
+            // In a real application, you would navigate to a detail page or show a modal
+        }
+    </script>
+</body>
+
+</html>

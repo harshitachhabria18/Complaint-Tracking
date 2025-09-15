@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-dark: #000000;
+            --primary-blue: #465C88;
+            --primary-accent: #FF7A30;
+            --primary-light: #f8f9fa;
+            --text-dark: #2D3748;
+            --text-light: #FFFFFF;
+            --gray-100: #F7FAFC;
+            --gray-200: #EDF2F7;
+            --gray-300: #E2E8F0;
+            --gray-400: #CBD5E0;
+            --gray-600: #718096;
+            --success: #38A169;
+            --warning: #D69E2E;
+            --error: #E53E3E;
+            --info: #3182CE;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+        }
+        
+        body {
+            background-color: var(--gray-100);
+            color: var(--text-dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            background-color: var(--primary-dark);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #2D3748 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+        
+        .stat-card.pending::before {
+            background: var(--warning);
+        }
+        
+        .stat-card.progress::before {
+            background: var(--info);
+        }
+        
+        .stat-card.resolved::before {
+            background: var(--success);
+        }
+        
+        .stat-card.urgent::before {
+            background: var(--error);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            line-height: 1;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--primary-blue);
+            font-weight: 500;
+        }
+        
+        .stat-card.pending .stat-icon {
+            color: var(--warning);
+        }
+        
+        .stat-card.progress .stat-icon {
+            color: var(--info);
+        }
+        
+        .stat-card.resolved .stat-icon {
+            color: var(--success);
+        }
+        
+        .stat-card.urgent .stat-icon {
+            color: var(--error);
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            height: 350px;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-blue);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-group label {
+            font-weight: 500;
+            color: var(--primary-blue);
+            font-size: 0.9rem;
+        }
+        
+        select, input {
+            padding: 0.5rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            background: white;
+        }
+        
+        .insights-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .insight-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .insight-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--gray-300);
+        }
+        
+        .insight-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-blue);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .insight-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .insight-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .insight-item:last-child {
+            border-bottom: none;
+        }
+        
+        .trend-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.9rem;
+        }
+        
+        .trend-up {
+            color: var(--success);
+        }
+        
+        .trend-down {
+            color: var(--error);
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a4e72;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-blue);
+            color: var(--primary-blue);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .filter-controls {
+                flex-direction: column;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-header {
+                padding: 1.5rem;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-university me-2"></i> Campus Complaint System
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-home me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-list-alt me-1"></i> Complaints</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="fas fa-chart-bar me-1"></i> Analytics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-user me-1"></i> Profile</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <h1 class="h2">Analytics Dashboard</h1>
+                    <p class="mb-0">Track performance, identify trends, and optimize operations</p>
+                </div>
+                <div class="d-flex gap-2 mt-2 mt-md-0">
+                    <button class="btn btn-outline">
+                        <i class="fas fa-download me-2"></i> Export Report
+                    </button>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-sync-alt me-2"></i> Refresh Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="filter-controls">
+            <div class="filter-group">
+                <label for="timeRange">Time Range</label>
+                <select id="timeRange">
+                    <option value="7">Last 7 Days</option>
+                    <option value="30" selected>Last 30 Days</option>
+                    <option value="90">Last 90 Days</option>
+                    <option value="180">Last 6 Months</option>
+                    <option value="365">Last Year</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="categoryFilter">Category</label>
+                <select id="categoryFilter">
+                    <option value="all" selected>All Categories</option>
+                    <option value="academic">Academic</option>
+                    <option value="hostel">Hostel</option>
+                    <option value="infrastructure">Infrastructure</option>
+                    <option value="administrative">Administrative</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="departmentFilter">Department</label>
+                <select id="departmentFilter">
+                    <option value="all" selected>All Departments</option>
+                    <option value="cs">Computer Science</option>
+                    <option value="math">Mathematics</option>
+                    <option value="physics">Physics</option>
+                    <option value="english">English</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="statusFilter">Status</label>
+                <select id="statusFilter">
+                    <option value="all" selected>All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="progress">In Progress</option>
+                    <option value="resolved">Resolved</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="stat-number">142</div>
+                <div class="stat-label">Total Complaints</div>
+            </div>
+            <div class="stat-card pending">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-number">38</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card progress">
+                <div class="stat-icon">
+                    <i class="fas fa-spinner"></i>
+                </div>
+                <div class="stat-number">64</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-card resolved">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-number">40</div>
+                <div class="stat-label">Resolved</div>
+            </div>
+            <div class="stat-card urgent">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-number">12</div>
+                <div class="stat-label">Overdue</div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title"><i class="fas fa-chart-line"></i> Complaints Trend</h3>
+                        <div class="btn-group">
+                            <button class="btn btn-outline btn-sm active">Monthly</button>
+                            <button class="btn btn-outline btn-sm">Weekly</button>
+                        </div>
+                    </div>
+                    <canvas id="complaintsTrendChart"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title"><i class="fas fa-chart-pie"></i> By Category</h3>
+                    </div>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Resolution Time by Category</h3>
+                    </div>
+                    <canvas id="resolutionTimeChart"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title"><i class="fas fa-users"></i> Teacher Performance</h3>
+                    </div>
+                    <canvas id="teacherPerformanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Insights -->
+        <div class="insights-container">
+            <div class="insight-card">
+                <div class="insight-header">
+                    <h3 class="insight-title"><i class="fas fa-lightbulb"></i> Key Insights</h3>
+                </div>
+                <ul class="insight-list">
+                    <li class="insight-item">
+                        <span>Infrastructure complaints increased by 23%</span>
+                        <span class="trend-indicator trend-up"><i class="fas fa-arrow-up"></i> 23%</span>
+                    </li>
+                    <li class="insight-item">
+                        <span>Average resolution time decreased by 2 days</span>
+                        <span class="trend-indicator trend-down"><i class="fas fa-arrow-down"></i> 2 days</span>
+                    </li>
+                    <li class="insight-item">
+                        <span>Student satisfaction improved by 15%</span>
+                        <span class="trend-indicator trend-up"><i class="fas fa-arrow-up"></i> 15%</span>
+                    </li>
+                    <li class="insight-item">
+                        <span>Hostel complaints decreased by 12%</span>
+                        <span class="trend-indicator trend-down"><i class="fas fa-arrow-down"></i> 12%</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="insight-card">
+                <div class="insight-header">
+                    <h3 class="insight-title"><i class="fas fa-tachometer-alt"></i> Performance Metrics</h3>
+                </div>
+                <ul class="insight-list">
+                    <li class="insight-item">
+                        <span>Overall resolution rate</span>
+                        <span>78%</span>
+                    </li>
+                    <li class="insight-item">
+                        <span>Average resolution time</span>
+                        <span>5.2 days</span>
+                    </li>
+                    <li class="insight-item">
+                        <span>First response time</span>
+                        <span>1.5 days</span>
+                    </li>
+                    <li class="insight-item">
+                        <span>Satisfaction rating</span>
+                        <span>4.2/5</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="insight-card">
+                <div class="insight-header">
+                    <h3 class="insight-title"><i class="fas fa-star"></i> Top Performers</h3>
+                </div>
+                <ul class="insight-list">
+                    <li class="insight-item">
+                        <span>Dr. Smith</span>
+                        <span>94% resolution rate</span>
+                    </li>
+                    <li class="insight-item">
+                        <span>Ms. Davis</span>
+                        <span>89% resolution rate</span>
+                    </li>
+                    <li class="insight-item">
+                        <span>Prof. Jones</span>
+                        <span>87% resolution rate</span>
+                    </li>
+                    <li class="insight-item">
+                        <span>Dr. Williams</span>
+                        <span>82% resolution rate</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Complaints Trend Chart
+            const trendCtx = document.getElementById('complaintsTrendChart').getContext('2d');
+            const trendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Complaints Received',
+                        data: [65, 59, 80, 81, 56, 55, 72, 68, 75, 80, 85, 90],
+                        borderColor: '#465C88',
+                        backgroundColor: 'rgba(70, 92, 136, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }, {
+                        label: 'Complaints Resolved',
+                        data: [50, 45, 60, 65, 50, 48, 60, 62, 68, 72, 78, 82],
+                        borderColor: '#38A169',
+                        backgroundColor: 'rgba(56, 161, 105, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Complaints'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Category Chart
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            const categoryChart = new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Academic', 'Hostel', 'Infrastructure', 'Administrative'],
+                    datasets: [{
+                        data: [42, 30, 20, 8],
+                        backgroundColor: [
+                            '#465C88',
+                            '#FF7A30',
+                            '#38A169',
+                            '#E53E3E'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+
+            // Resolution Time Chart
+            const resolutionCtx = document.getElementById('resolutionTimeChart').getContext('2d');
+            const resolutionChart = new Chart(resolutionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Academic', 'Hostel', 'Infrastructure', 'Administrative'],
+                    datasets: [{
+                        label: 'Average Resolution Time (Days)',
+                        data: [7, 4, 9, 6],
+                        backgroundColor: [
+                            'rgba(70, 92, 136, 0.7)',
+                            'rgba(255, 122, 48, 0.7)',
+                            'rgba(56, 161, 105, 0.7)',
+                            'rgba(229, 62, 62, 0.7)'
+                        ],
+                        borderColor: [
+                            '#465C88',
+                            '#FF7A30',
+                            '#38A169',
+                            '#E53E3E'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Days'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Teacher Performance Chart
+            const teacherCtx = document.getElementById('teacherPerformanceChart').getContext('2d');
+            const teacherChart = new Chart(teacherCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Resolution Rate', 'Speed', 'Satisfaction', 'Communication', 'Follow-up'],
+                    datasets: [
+                        {
+                            label: 'Dr. Smith',
+                            data: [94, 88, 92, 85, 90],
+                            backgroundColor: 'rgba(70, 92, 136, 0.2)',
+                            borderColor: '#465C88',
+                            pointBackgroundColor: '#465C88'
+                        },
+                        {
+                            label: 'Ms. Davis',
+                            data: [89, 92, 87, 90, 85],
+                            backgroundColor: 'rgba(255, 122, 48, 0.2)',
+                            borderColor: '#FF7A30',
+                            pointBackgroundColor: '#FF7A30'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 50,
+                            suggestedMax: 100
+                        }
+                    }
+                }
+            });
+
+            // Filter functionality
+            document.getElementById('timeRange').addEventListener('change', updateCharts);
+            document.getElementById('categoryFilter').addEventListener('change', updateCharts);
+            document.getElementById('departmentFilter').addEventListener('change', updateCharts);
+            document.getElementById('statusFilter').addEventListener('change', updateCharts);
+
+            function updateCharts() {
+                // In a real application, this would fetch new data based on filters
+                // For this example, we'll just simulate updating the charts
+                console.log('Filters updated - would fetch new data here');
+                
+                // Show a loading indicator
+                const buttons = document.querySelectorAll('.btn');
+                buttons.forEach(btn => {
+                    btn.disabled = true;
+                });
+                
+                // Simulate data loading
+                setTimeout(() => {
+                    buttons.forEach(btn => {
+                        btn.disabled = false;
+                    });
+                    
+                    // Show success message
+                    const successAlert = document.createElement('div');
+                    successAlert.className = 'alert alert-success alert-dismissible fade show';
+                    successAlert.innerHTML = `
+                        <strong>Data updated!</strong> Charts refreshed with new filter criteria.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.querySelector('.dashboard-container').prepend(successAlert);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

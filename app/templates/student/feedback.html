@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Feedback - Student Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student.css') }}">
+</head>
+
+<body>
+    <!-- Dashboard Layout -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('student.home') }}"><i class="fas fa-home me-2"></i> Dashboard</a>
+            <a href="{{ url_for('student.new_complaint') }}"><i class="fas fa-plus-circle me-2"></i> New Complaint</a>
+            <a href="{{ url_for('student.complaint_history') }}"><i class="fas fa-history me-2"></i> Complaint
+                History</a>
+            <a href="{{ url_for('student.feedback') }}" class="active"><i class="fas fa-star me-2"></i> Feedback</a>
+            <a href="#"><i class="fas fa-question-circle me-2"></i> Help & FAQ</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content-dashboard">
+            <div class="content-container">
+                <div class="main-content-inner">
+                    <!-- Dashboard Header -->
+                    <div class="dashboard-header">
+                        <div class="welcome-message">
+                            <h1>Submit Feedback</h1>
+                            <p>Share your experience with our complaint resolution process</p>
+                        </div>
+                        <div class="quick-actions">
+                            <a href="{{ url_for('student.complaint_history') }}" class="btn btn-outline">
+                                <i class="fas fa-history"></i> Complaint History
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% if messages %}
+                        {% for category, message in messages %}
+                          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                        {% endfor %}
+                      {% endif %}
+                    {% endwith %}
+
+                    <!-- Feedback Form -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Feedback Form</h3>
+                        </div>
+                        <div class="card-body">
+                            <!-- Complaint Selection -->
+                            <div class="form-group">
+                                <label class="form-label" for="complaintSelect">
+                                    <i class="fas fa-file-alt"></i> Select Complaint
+                                </label>
+                                <select class="form-control" id="complaintSelect" required
+                                    onchange="showComplaintInfo(this.value)">
+                                    <option value="">-- Select a complaint to provide feedback --</option>
+                                    <option value="COMP001">#COMP001 - Leaking roof in Room 203 (Resolved)</option>
+                                    <option value="COMP002">#COMP002 - Assignment grading issue (In Progress)</option>
+                                    <option value="COMP003">#COMP003 - Broken chair in library (Pending)</option>
+                                    <option value="COMP004">#COMP004 - Internet connectivity issues (Resolved)</option>
+                                    <option value="COMP005">#COMP005 - Request for extra classes (Resolved)</option>
+                                </select>
+                            </div>
+
+                            <!-- Complaint Information Sections (Static HTML) -->
+                            <div class="complaint-info complaint-details" id="COMP001-info">
+                                <h4>Complaint Details</h4>
+                                <div
+                                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                                    <div>
+                                        <strong>Complaint ID:</strong> COMP001
+                                    </div>
+                                    <div>
+                                        <strong>Category:</strong> Hostel
+                                    </div>
+                                    <div>
+                                        <strong>Subject:</strong> Leaking roof in Room 203
+                                    </div>
+                                    <div>
+                                        <strong>Status:</strong> Resolved
+                                    </div>
+                                    <div>
+                                        <strong>Date Submitted:</strong> Oct 15, 2023
+                                    </div>
+                                    <div>
+                                        <strong>Date Resolved:</strong> Oct 20, 2023
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="complaint-info complaint-details" id="COMP002-info">
+                                <h4>Complaint Details</h4>
+                                <div
+                                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                                    <div>
+                                        <strong>Complaint ID:</strong> COMP002
+                                    </div>
+                                    <div>
+                                        <strong>Category:</strong> Academic
+                                    </div>
+                                    <div>
+                                        <strong>Subject:</strong> Assignment grading issue
+                                    </div>
+                                    <div>
+                                        <strong>Status:</strong> In Progress
+                                    </div>
+                                    <div>
+                                        <strong>Date Submitted:</strong> Oct 10, 2023
+                                    </div>
+                                    <div>
+                                        <strong>Date Resolved:</strong> Not yet resolved
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="complaint-info complaint-details" id="COMP003-info">
+                                <h4>Complaint Details</h4>
+                                <div
+                                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                                    <div>
+                                        <strong>Complaint ID:</strong> COMP003
+                                    </div>
+                                    <div>
+                                        <strong>Category:</strong> Infrastructure
+                                    </div>
+                                    <div>
+                                        <strong>Subject:</strong> Broken chair in library
+                                    </div>
+                                    <div>
+                                        <strong>Status:</strong> Pending
+                                    </div>
+                                    <div>
+                                        <strong>Date Submitted:</strong> Oct 5, 2023
+                                    </div>
+                                    <div>
+                                        <strong>Date Resolved:</strong> Not yet resolved
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="complaint-info complaint-details" id="COMP004-info">
+                                <h4>Complaint Details</h4>
+                                <div
+                                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                                    <div>
+                                        <strong>Complaint ID:</strong> COMP004
+                                    </div>
+                                    <div>
+                                        <strong>Category:</strong> Infrastructure
+                                    </div>
+                                    <div>
+                                        <strong>Subject:</strong> Internet connectivity issues
+                                    </div>
+                                    <div>
+                                        <strong>Status:</strong> Resolved
+                                    </div>
+                                    <div>
+                                        <strong>Date Submitted:</strong> Sep 28, 2023
+                                    </div>
+                                    <div>
+                                        <strong>Date Resolved:</strong> Oct 5, 2023
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="complaint-info complaint-details" id="COMP005-info">
+                                <h4>Complaint Details</h4>
+                                <div
+                                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                                    <div>
+                                        <strong>Complaint ID:</strong> COMP005
+                                    </div>
+                                    <div>
+                                        <strong>Category:</strong> Academic
+                                    </div>
+                                    <div>
+                                        <strong>Subject:</strong> Request for extra classes
+                                    </div>
+                                    <div>
+                                        <strong>Status:</strong> Resolved
+                                    </div>
+                                    <div>
+                                        <strong>Date Submitted:</strong> Sep 20, 2023
+                                    </div>
+                                    <div>
+                                        <strong>Date Resolved:</strong> Sep 25, 2023
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Rating Section -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-star"></i> Overall Rating
+                                </label>
+                                <div class="rating-stars" id="ratingStars">
+                                    <span class="rating-star" data-value="1"><i class="fas fa-star"></i></span>
+                                    <span class="rating-star" data-value="2"><i class="fas fa-star"></i></span>
+                                    <span class="rating-star" data-value="3"><i class="fas fa-star"></i></span>
+                                    <span class="rating-star" data-value="4"><i class="fas fa-star"></i></span>
+                                    <span class="rating-star" data-value="5"><i class="fas fa-star"></i></span>
+                                </div>
+                                <input type="hidden" id="ratingValue" name="rating" required>
+                                <div id="ratingText" style="margin-top: 0.5rem; font-weight: 500;"></div>
+                            </div>
+
+                            <!-- Comments Section -->
+                            <div class="form-group">
+                                <label class="form-label" for="comments">
+                                    <i class="fas fa-comment"></i> Comments
+                                </label>
+                                <textarea class="form-control" id="comments" name="comments" rows="6"
+                                    placeholder="Please share your experience with the complaint resolution process. What did we do well? How can we improve?"
+                                    maxlength="1000" required></textarea>
+                                <div class="character-count">
+                                    <span id="charCount">0</span>/1000 characters
+                                </div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-outline" onclick="window.history.back()">
+                                    <i class="fas fa-arrow-left"></i> Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="submitFeedback">
+                                    <i class="fas fa-paper-plane"></i> Submit Feedback
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Previous Feedback -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Your Previous Feedback</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="notification-list">
+                                <div class="notification-item">
+                                    <div class="notification-icon">
+                                        <i class="fas fa-star" style="color: #FFD700;"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <h4>Internet connectivity issues (#COMP004)</h4>
+                                        <p>Rating: ★★★★★ (5/5)</p>
+                                        <p>"The IT team was very responsive and resolved the issue within 24 hours.
+                                            Excellent service!"</p>
+                                        <div class="notification-time">Submitted on: Oct 22, 2023</div>
+                                    </div>
+                                </div>
+                                <div class="notification-item">
+                                    <div class="notification-icon">
+                                        <i class="fas fa-star" style="color: #FFD700;"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <h4>Leaking roof in Room 203 (#COMP001)</h4>
+                                        <p>Rating: ★★★★☆ (4/5)</p>
+                                        <p>"The maintenance team fixed the issue, but it took longer than expected.
+                                            Otherwise, good service."</p>
+                                        <div class="notification-time">Submitted on: Oct 18, 2023</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <div class="chatbot" data-bs-toggle="tooltip" title="Chatbot Assistance">
+        <i class="fas fa-robot fa-2x"></i>
+    </div>
+
+    <div class="chat-window">
+        <div class="chat-header">
+            <div>
+                <strong>Help Assistant</strong>
+                <div class="small">We're here to help you 24/7</div>
+            </div>
+            <i class="fas fa-times close-chat"></i>
+        </div>
+        <div class="chat-messages">
+            <div class="alert alert-info mb-3">
+                <strong>Hello!</strong> How can I help you with your complaints today?
+            </div>
+            <div class="card mb-2">
+                <div class="card-body py-2">
+                    <strong>Frequently Asked Questions:</strong>
+                    <div class="d-grid gap-2 mt-2">
+                        <button class="btn btn-sm btn-outline-secondary text-start faq-question">How to submit a new
+                            complaint?</button>
+                        <button class="btn btn-sm btn-outline-secondary text-start faq-question">How to check complaint
+                            status?</button>
+                        <button class="btn btn-sm btn-outline-secondary text-start faq-question">What to do if my
+                            complaint is unresolved?</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+
+    <script>
+        // DOM Elements
+        const ratingStars = document.querySelectorAll('.rating-star');
+        const ratingValue = document.getElementById('ratingValue');
+        const ratingText = document.getElementById('ratingText');
+        const comments = document.getElementById('comments');
+        const charCount = document.getElementById('charCount');
+        const submitButton = document.getElementById('submitFeedback');
+
+        // Function to show complaint info based on selection
+        function showComplaintInfo(complaintId) {
+            // Hide all complaint info sections
+            const allComplaintInfo = document.querySelectorAll('.complaint-details');
+            allComplaintInfo.forEach(info => {
+                info.style.display = 'none';
+            });
+
+            // Show the selected complaint info if one is selected
+            if (complaintId) {
+                const selectedInfo = document.getElementById(complaintId + '-info');
+                if (selectedInfo) {
+                    selectedInfo.style.display = 'block';
+
+                    // Enable/disable submit button based on complaint status
+                    const statusText = selectedInfo.textContent;
+                    if (statusText.includes('Status: Resolved')) {
+                        submitButton.disabled = false;
+                        submitButton.title = '';
+                    } else {
+                        submitButton.disabled = true;
+                        submitButton.title = 'Feedback can only be submitted for resolved complaints';
+                    }
+                }
+            } else {
+                submitButton.disabled = true;
+            }
+        }
+
+        // Event Listeners for rating stars
+        ratingStars.forEach(star => {
+            star.addEventListener('click', setRating);
+            star.addEventListener('mouseover', hoverRating);
+        });
+
+        document.getElementById('ratingStars').addEventListener('mouseleave', resetRatingHover);
+        comments.addEventListener('input', updateCharacterCount);
+        submitButton.addEventListener('click', submitFeedback);
+
+        // Functions
+        function setRating(e) {
+            const value = e.target.closest('.rating-star').getAttribute('data-value');
+            ratingValue.value = value;
+
+            // Update visual rating
+            ratingStars.forEach(star => {
+                const starValue = star.getAttribute('data-value');
+                if (starValue <= value) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+
+            // Update rating text
+            updateRatingText(value);
+        }
+
+        function hoverRating(e) {
+            const value = e.target.closest('.rating-star').getAttribute('data-value');
+
+            ratingStars.forEach(star => {
+                const starValue = star.getAttribute('data-value');
+                if (starValue <= value) {
+                    star.style.color = '#FFD700';
+                } else {
+                    star.style.color = '#ddd';
+                }
+            });
+        }
+
+        function resetRatingHover() {
+            const currentRating = ratingValue.value;
+
+            ratingStars.forEach(star => {
+                const starValue = star.getAttribute('data-value');
+                if (currentRating && starValue <= currentRating) {
+                    star.style.color = '#FFD700';
+                } else {
+                    star.style.color = '#ddd';
+                }
+            });
+
+            if (!currentRating) {
+                ratingStars.forEach(star => {
+                    star.style.color = '#ddd';
+                });
+            }
+        }
+
+        function updateRatingText(value) {
+            const texts = {
+                1: 'Poor - Very dissatisfied',
+                2: 'Fair - Somewhat dissatisfied',
+                3: 'Good - Neutral',
+                4: 'Very Good - Satisfied',
+                5: 'Excellent - Very satisfied'
+            };
+
+            ratingText.textContent = texts[value] || '';
+            ratingText.style.color = '#465C88';
+        }
+
+        function updateCharacterCount() {
+            charCount.textContent = comments.value.length;
+        }
+
+        function submitFeedback() {
+            const complaintSelect = document.getElementById('complaintSelect');
+
+            // Basic validation
+            if (!complaintSelect.value) {
+                alert('Please select a complaint to provide feedback');
+                return;
+            }
+
+            if (!ratingValue.value) {
+                alert('Please provide a rating');
+                return;
+            }
+
+            if (!comments.value.trim()) {
+                alert('Please provide comments');
+                return;
+            }
+
+            // In a real application, this would submit to a server
+            // For now, we'll just show a success message
+            alert('Thank you for your feedback! Your comments have been submitted successfully.');
+
+            // Reset form
+            complaintSelect.value = '';
+            showComplaintInfo('');
+            ratingValue.value = '';
+            ratingStars.forEach(star => star.classList.remove('active'));
+            ratingText.textContent = '';
+            comments.value = '';
+            charCount.textContent = '0';
+
+            // Simulate adding the new feedback to the previous feedback section
+            // In a real application, this would be handled by the server
+           
+        }
+
+        // Initialize character count
+        updateCharacterCount();
+    </script>
+</body>
+
+</html>

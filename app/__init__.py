@@ -20,6 +20,9 @@ def create_app():
         "DATABASE_URL")
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+    app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads')
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)  # create folder if not present
+
     # Init extensions
     db.init_app(app)
     login_manager.init_app(app)
@@ -36,6 +39,15 @@ def create_app():
 
     # Register blueprints
     from app.routes.auth import bp as auth_bp
+    from app.routes.student import bp as student_bp
+    from app.routes.admin import bp as admin_bp
+    from app.routes.teacher import bp as teacher_bp
+    from app.routes.main import bp as main_bp
+
+    app.register_blueprint(main_bp)
+    app.register_blueprint(teacher_bp)
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(student_bp)
     app.register_blueprint(auth_bp)
 
     return app

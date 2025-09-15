@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint History - Student Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student.css') }}">
+</head>
+
+<body>
+    <!-- Dashboard Layout -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar fixed-top">
+            <a href="{{ url_for('student.home') }}"><i class="fas fa-home me-2"></i> Dashboard</a>
+            <a href="{{ url_for('student.new_complaint') }}"><i class="fas fa-plus-circle me-2"></i> New
+                Complaint</a>
+            <a href="{{ url_for('student.complaint_history') }}" class="active"><i class="fas fa-history me-2"></i>
+                Complaint
+                History</a>
+            <a href="{{ url_for('student.feedback') }}"><i class="fas fa-star me-2"></i> Feedback</a>
+            <a href="#"><i class="fas fa-question-circle me-2"></i> Help & FAQ</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content-dashboard">
+            <div class="content-container">
+                <div class="main-content-inner">
+                    <!-- Dashboard Header -->
+                    <div class="dashboard-header">
+                        <div class="welcome-message">
+                            <h1>Complaint History</h1>
+                            <p>View and track all your submitted complaints</p>
+                        </div>
+                        <div class="quick-actions">
+                            <a href="{{ url_for('student.new_complaint') }}" class="btn btn-accent">
+                                <i class="fas fa-plus"></i> New Complaint
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Filter Section -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Filter Complaints</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="filterForm" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <div>
+                                    <label class="form-label">Status</label>
+                                    <select class="form-select" name="status">
+                                        <option value="">All Statuses</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="inprogress">In Progress</option>
+                                        <option value="resolved">Resolved</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">Date Range</label>
+                                    <select class="form-select" name="dateRange">
+                                        <option value="">All Time</option>
+                                        <option value="7">Last 7 Days</option>
+                                        <option value="30">Last 30 Days</option>
+                                        <option value="90">Last 90 Days</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">Category</label>
+                                    <select class="form-select" name="category">
+                                        <option value="">All Categories</option>
+                                        <option value="academic">Academic</option>
+                                        <option value="hostel">Hostel</option>
+                                        <option value="infrastructure">Infrastructure</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div style="align-self: flex-end;">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-filter"></i> Apply Filters
+                                    </button>
+                                    <button type="button" id="resetFilters" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times"></i> Reset
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Complaints Table -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h3>Your Complaints</h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="data-table" id="complaintsTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Subject</th>
+                                        <th>Category</th>
+                                        <th>Date Submitted</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for complaint in complaints %}
+                                    <tr data-status="{{ complaint.status|lower }}"
+                                        data-category="{{ complaint.category|lower }}"
+                                        data-date="{{ complaint.created_at.strftime('%Y-%m-%d') }}"
+                                        data-title="{{ complaint.title|tojson }}"
+                                        data-description="{{ complaint.description|tojson }}"
+                                        data-severity="{{ complaint.severity|tojson }}"
+                                        data-updated="{{ complaint.updated_at.strftime('%Y-%m-%d') if complaint.updated_at else '' }}"
+                                        data-evidence="{{ (complaint.evidence_path or '')|tojson }}"
+                                        data-history='{{ complaint.history_json|tojson }}'>
+                                        <td>#COMP{{ '%03d' % complaint.id }}</td>
+                                        <td>{{ complaint.title }}</td>
+                                        <td>{{ complaint.category }}</td>
+                                        <td>{{ complaint.created_at.strftime('%b %d, %Y') }}</td>
+                                        <td>
+                                            {% if complaint.status.lower() == 'resolved' %}
+                                            <span class="status-badge status-resolved">Resolved</span>
+                                            {% elif complaint.status.lower() == 'in progress' %}
+                                            <span class="status-badge status-inprogress">In Progress</span>
+                                            {% else %}
+                                            <span class="status-badge status-pending">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-view" data-bs-toggle="modal"
+                                                data-bs-target="#complaintDetailModal" data-id="{{ complaint.id }}">
+                                                <i class="fas fa-eye"></i> View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <div class="chatbot" data-bs-toggle="tooltip" title="Chatbot Assistance">
+        <i class="fas fa-robot fa-2x"></i>
+    </div>
+
+    <div class="chat-window">
+        <div class="chat-header">
+            <div>
+                <strong>Help Assistant</strong>
+                <div class="small">We're here to help you 24/7</div>
+            </div>
+            <i class="fas fa-times close-chat"></i>
+        </div>
+        <div class="chat-messages">
+            <div class="alert alert-info mb-3">
+                <strong>Hello!</strong> How can I help you with your complaints today?
+            </div>
+            <div class="card mb-2">
+                <div class="card-body py-2">
+                    <strong>Frequently Asked Questions:</strong>
+                    <div class="d-grid gap-2 mt-2">
+                        <button class="btn btn-sm btn-outline-secondary text-start faq-question">How to submit a new
+                            complaint?</button>
+                        <button class="btn btn-sm btn-outline-secondary text-start faq-question">How to check complaint
+                            status?</button>
+                        <button class="btn btn-sm btn-outline-secondary text-start faq-question">What to do if my
+                            complaint is unresolved?</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/student.js') }}"></script>
+</body>
+
+</html>

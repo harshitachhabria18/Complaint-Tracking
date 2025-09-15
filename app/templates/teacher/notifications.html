@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduManage - Notifications</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            --background: #E9E3DF;
+            --primary: #FF7A30;
+            --primary-light: #FF9D60;
+            --secondary: #465C88;
+            --secondary-light: #5F7BB1;
+            --text: #2D3748;
+            --text-light: #718096;
+            --light-bg: #f8f6f5;
+            --card-bg: #ffffff;
+            --success: #38A169;
+            --warning: #D69E2E;
+            --danger: #E53E3E;
+            --info: #3182CE;
+            --sidebar-width: 260px;
+            --header-height: 70px;
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--secondary) 0%, var(--secondary-light) 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            transition: var(--transition);
+            z-index: 1000;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar-logo i {
+            margin-right: 10px;
+            color: var(--primary);
+            font-size: 28px;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-left-color: var(--primary);
+        }
+
+        .menu-item i {
+            margin-right: 12px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .menu-label {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: var(--transition);
+        }
+
+        /* Header */
+        .header {
+            height: var(--header-height);
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: var(--light-bg);
+            transition: var(--transition);
+        }
+
+        .notification-icon:hover {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .notification-badge {
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            position: absolute;
+            top: -2px;
+            right: -2px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        /* Content Area */
+        .content {
+            padding: 25px;
+        }
+
+        /* Notifications Container */
+        .notifications-container {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+        }
+
+        .notifications-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .notifications-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .notifications-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-button {
+            padding: 8px 16px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .action-button:hover {
+            background-color: var(--primary-light);
+        }
+
+        .action-button.secondary {
+            background-color: var(--light-bg);
+            color: var(--text);
+        }
+
+        .action-button.secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        /* Notification Items */
+        .notification-list {
+            padding: 0;
+        }
+
+        .notification-item {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .notification-item.unread {
+            background-color: #f0f7ff;
+        }
+
+        .notification-icon-container {
+            color: var(--secondary);
+            font-size: 20px;
+            margin-top: 3px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text);
+        }
+
+        .notification-message {
+            color: var(--text-light);
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .notification-action-btn {
+            padding: 4px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: var(--transition);
+            background-color: var(--light-bg);
+            color: var(--text);
+        }
+
+        .notification-action-btn:hover {
+            background-color: #e2e8f0;
+        }
+
+        .notification-action-btn.primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .notification-action-btn.primary:hover {
+            background-color: var(--secondary-light);
+        }
+
+        .mark-read-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .mark-read-btn:hover {
+            background-color: var(--light-bg);
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #cbd5e0;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .empty-state p {
+            margin-bottom: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+                width: var(--sidebar-width);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .user-info {
+                display: none;
+            }
+            
+            .notifications-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .notifications-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .notification-item {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .mark-read-btn {
+                position: static;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-school"></i>
+                <span>EduManage</span>
+            </div>
+        </div>
+        
+        <div class="sidebar-menu">
+            <div class="menu-item" data-page="dashboard">
+                <i class="fas fa-home"></i>
+                <span class="menu-label">Dashboard</span>
+            </div>
+            <div class="menu-item" data-page="complaints">
+                <i class="fas fa-tasks"></i>
+                <span class="menu-label">My Complaints</span>
+            </div>
+            <div class="menu-item active" data-page="notifications">
+                <i class="fas fa-bell"></i>
+                <span class="menu-label">Notifications</span>
+            </div>
+            <div class="menu-item" data-page="help">
+                <i class="fas fa-question-circle"></i>
+                <span class="menu-label">Help & Support</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="page-title">Teacher Dashboard</div>
+            <div class="header-actions">
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-info">
+                        <div class="user-name">John Doe</div>
+                        <div class="user-role">Mathematics Teacher</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Notifications Container -->
+            <div class="notifications-container">
+                <div class="notifications-header">
+                    <div class="notifications-title">All Notifications</div>
+                    <div class="notifications-actions">
+                        <button class="action-button secondary" onclick="markAllAsRead()">
+                            <i class="fas fa-check-double"></i> Mark All as Read
+                        </button>
+                        <button class="action-button" onclick="clearAllNotifications()">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="notification-list">
+                    <div class="notification-item unread" data-id="1">
+                        <div class="notification-icon-container">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">New complaint assigned to you</div>
+                            <div class="notification-message">Complaint #COMP-2025-0031 has been assigned to you. Please review and take appropriate action.</div>
+                            <div class="notification-time">
+                                <i class="fas fa-clock"></i> 10 minutes ago
+                            </div>
+                            <div class="notification-actions">
+                                <button class="notification-action-btn primary" onclick="viewComplaint('COMP-2025-0031')">View Complaint</button>
+                                <button class="notification-action-btn" onclick="dismissNotification(1)">Dismiss</button>
+                            </div>
+                        </div>
+                        <button class="mark-read-btn" onclick="markAsRead(1)">Mark as read</button>
+                    </div>
+                    
+                    <div class="notification-item unread" data-id="2">
+                        <div class="notification-icon-container">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">Deadline approaching</div>
+                            <div class="notification-message">Complaint #COMP-2025-0034 is due tomorrow. Please ensure you resolve it before the deadline.</div>
+                            <div class="notification-time">
+                                <i class="fas fa-clock"></i> 1 hour ago
+                            </div>
+                            <div class="notification-actions">
+                                <button class="notification-action-btn primary" onclick="viewComplaint('COMP-2025-0034')">View Complaint</button>
+                                <button class="notification-action-btn" onclick="dismissNotification(2)">Dismiss</button>
+                            </div>
+                        </div>
+                        <button class="mark-read-btn" onclick="markAsRead(2)">Mark as read</button>
+                    </div>
+                    
+                    <div class="notification-item unread" data-id="3">
+                        <div class="notification-icon-container">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">Complaint resolved</div>
+                            <div class="notification-message">Your resolution for complaint #COMP-2025-0025 has been accepted by the administration.</div>
+                            <div class="notification-time">
+                                <i class="fas fa-clock"></i> 3 hours ago
+                            </div>
+                            <div class="notification-actions">
+                                <button class="notification-action-btn primary" onclick="viewComplaint('COMP-2025-0025')">View Details</button>
+                                <button class="notification-action-btn" onclick="dismissNotification(3)">Dismiss</button>
+                            </div>
+                        </div>
+                        <button class="mark-read-btn" onclick="markAsRead(3)">Mark as read</button>
+                    </div>
+                    
+                    <div class="notification-item" data-id="4">
+                        <div class="notification-icon-container">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">Weekly summary</div>
+                            <div class="notification-message">You resolved 5 complaints this week. Keep up the good work!</div>
+                            <div class="notification-time">
+                                <i class="fas fa-clock"></i> 1 day ago
+                            </div>
+                            <div class="notification-actions">
+                                <button class="notification-action-btn primary" onclick="viewWeeklyReport()">View Report</button>
+                                <button class="notification-action-btn" onclick="dismissNotification(4)">Dismiss</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="notification-item" data-id="5">
+                        <div class="notification-icon-container">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">New complaint assigned to you</div>
+                            <div class="notification-message">Complaint #COMP-2025-0032 has been assigned to you. Please review and take appropriate action.</div>
+                            <div class="notification-time">
+                                <i class="fas fa-clock"></i> 2 days ago
+                            </div>
+                            <div class="notification-actions">
+                                <button class="notification-action-btn primary" onclick="viewComplaint('COMP-2025-0032')">View Complaint</button>
+                                <button class="notification-action-btn" onclick="dismissNotification(5)">Dismiss</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="notification-item" data-id="6">
+                        <div class="notification-icon-container">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">Meeting reminder</div>
+                            <div class="notification-message">You have a scheduled meeting with parents tomorrow at 10:00 AM regarding student progress.</div>
+                            <div class="notification-time">
+                                <i class="fas fa-clock"></i> 3 days ago
+                            </div>
+                            <div class="notification-actions">
+                                <button class="notification-action-btn primary" onclick="viewCalendar()">View Calendar</button>
+                                <button class="notification-action-btn" onclick="dismissNotification(6)">Dismiss</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Track read notifications
+        const readNotifications = new Set([4, 5, 6]);
+
+        // Update notification count
+        function updateNotificationCount() {
+            const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+            const badge = document.querySelector('.notification-badge');
+            
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // Mark notification as read
+        function markAsRead(id) {
+            const notification = document.querySelector(.notification-item[data-id="${id}"]);
+            if (notification) {
+                notification.classList.remove('unread');
+                const markReadBtn = notification.querySelector('.mark-read-btn');
+                if (markReadBtn) {
+                    markReadBtn.remove();
+                }
+                readNotifications.add(id);
+                updateNotificationCount();
+            }
+        }
+
+        // Mark all notifications as read
+        function markAllAsRead() {
+            const notifications = document.querySelectorAll('.notification-item.unread');
+            notifications.forEach(notification => {
+                const id = notification.getAttribute('data-id');
+                notification.classList.remove('unread');
+                const markReadBtn = notification.querySelector('.mark-read-btn');
+                if (markReadBtn) {
+                    markReadBtn.remove();
+                }
+                readNotifications.add(parseInt(id));
+            });
+            updateNotificationCount();
+            alert('All notifications marked as read!');
+        }
+
+        // Dismiss notification
+        function dismissNotification(id) {
+            const notification = document.querySelector(.notification-item[data-id="${id}"]);
+            if (notification) {
+                notification.style.display = 'none';
+                if (notification.classList.contains('unread')) {
+                    readNotifications.add(id);
+                    updateNotificationCount();
+                }
+            }
+        }
+
+        // Clear all notifications
+        function clearAllNotifications() {
+            if (confirm('Are you sure you want to clear all notifications?')) {
+                const notifications = document.querySelectorAll('.notification-item');
+                notifications.forEach(notification => {
+                    notification.style.display = 'none';
+                });
+                updateNotificationCount();
+            }
+        }
+
+        // View complaint
+        function viewComplaint(complaintId) {
+            alert(Opening complaint ${complaintId});
+            // In a real application, this would navigate to the complaint detail page
+        }
+
+        // View weekly report
+        function viewWeeklyReport() {
+            alert('Opening weekly report');
+            // In a real application, this would navigate to the reports page
+        }
+
+        // View calendar
+        function viewCalendar() {
+            alert('Opening calendar');
+            // In a real application, this would navigate to the calendar page
+        }
+
+        // Initialize notification count
+        updateNotificationCount();
+    </script>
+</body>
+</html>
